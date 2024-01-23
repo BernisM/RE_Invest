@@ -83,7 +83,7 @@ class InvestmentApp:
         renovation_price_per_sq_m_label = ttk.Label(root, text="Coût au mètre carré (€):")
         renovation_price_per_sq_m_entry = ttk.Entry(root, textvariable=self.renovation_price_per_sq_m_var, state="readonly")
 
-        # Placement des widgets
+        # Placer les widgets
         root.columnconfigure(0,weight=1)
         root.columnconfigure(1,weight=3)
 
@@ -117,16 +117,16 @@ class InvestmentApp:
         renovation_price_per_sq_m_label.grid(row=5, column=2, padx=5, pady=5, sticky="w")
         renovation_price_per_sq_m_entry.grid(row=5, column=3, padx=5, pady=5)
 
-        # Bouton de calcul
+        # Bouton Calcul
         calculate_button = ttk.Button(root, text="Calculer", command=lambda: self.calculate())
         calculate_button.grid(row=10, column=0, columnspan=2, pady=20)
         root.bind('<Return>', lambda event: self.calculate())
         
-        # Bouton clear
+        # Bouton Clear
         clear_button = ttk.Button(root, text="Effacer", command=self.effacer)
         clear_button.grid(row=10, column=1, columnspan=2, pady=20)
 
-        # Bouton cancel
+        # Bouton Cancel
         cancel_button = ttk.Button(root, text="Fermer", command=self.cancel)
         cancel_button.grid(row=10, column=2, columnspan=3, pady=20)
         root.bind('<Escape>', self.cancel)
@@ -204,21 +204,23 @@ class InvestmentApp:
         result_window = tk.Toplevel(self.root)
         result_window.title("Résultats")
         
-        # Ajoutez des étiquettes ou d'autres widgets pour afficher les résultats dans result_window
-        # Exemple :
+        # Ajoutez des étiquettes + widgets 
         result_total = ttk.Label(result_window, text=f"Total du prêt: {locale.format_string('%.2f',results['total_loan'], grouping=True)}€")
         result_y = ttk.Label(result_window, text=f"Durée: {results['durée']} ans")
-        result_rate = ttk.Label(result_window, text=f"Taux d'intérêt + Assurance : {results['taux']}%")
+        result_rate = ttk.Label(result_window, text=f"Taux d'intérêt + Assurance: {results['taux']}%")
                          
         result_total.grid(row=0, column=0, padx=3, pady=3, sticky="w",columnspan=2)
-        result_y.grid(row=1, column=0, padx=3, pady=3, sticky="w",columnspan=2)
+        result_y.grid(row=1, column=0, padx=3, pady=3, sticky="w",columnspan=1)
         result_rate.grid(row=1, column=1, padx=3, pady=3, sticky="w")
 
         # Créer un tableau (Treeview) pour afficher les résultats
         columns = ["Durée annuel", "Taux d'intérêt", "Taux d'intérêt + Assurance", 'Mensualités', 'Coût du Crédit']
         tree = ttk.Treeview(result_window, columns=columns, show="headings")
 
-        # Centrer e^les données dans chaque colonne
+        # Définition du style pour surligner la ligne de l'annnée sélectionnée
+        tree.tag_configure('selected_row', background='lightblue')
+
+        # Centrer les données dans chaque colonne
         for col in columns:
             tree.column(col,anchor="center")
 
@@ -239,7 +241,15 @@ class InvestmentApp:
 
             tree.insert("", "end", values=[years + " ans", f"{interest_rate:.2f}%", f"{taeg:.2f}%", f"{locale.format_string('%.2f', mensualités, grouping=True)}€", f"{locale.format_string('%.2f', crd_cost, grouping=True)}€"])
 
-        # Ajouter une barre de défilement
+            # Obtenir la durée sélectionner
+            selected_year = self.years_term_var.get() + " ans"
+
+            # Trouver la ligne de l'année sélectionner dans le treeview
+            for item in tree.get_children():
+                if tree.item(item, "values")[0] == selected_year:
+                    tree.item(item, tags=("selected_row",)) # Appliquer surligne bleu
+
+        # Barre de défilement
         """ scrollbar = ttk.Scrollbar(result_window, orient="vertical", command=tree.yview)
         scrollbar.grid(row=2, column=1, sticky="nsew")
         tree.configure(yscrollcommand=scrollbar.set) """
@@ -249,7 +259,6 @@ class InvestmentApp:
 
         tree.grid(row=3, column=0,padx=10, pady=10,sticky="w")
 
-        # Ajoutez d'autres widgets pour afficher les autres résultats...
 
     def calculate(self, event=None):
         date_value = self.date_var.get()
