@@ -2,39 +2,30 @@ import tkinter as tk
 from tkinter import ttk
 import tkcalendar
 from datetime import datetime
-import ast
 import numpy as np
 import locale
+from Params_Invest import Parameter, Widgets
 
 locale.setlocale(locale.LC_ALL, '')
 
 today = datetime.today()
 
-class InvestmentApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Investment Property Calculator")
+class InvestmentApp(tk.Tk):
+    def __init__(self):
+        tk.Tk.__init__(self)
 
-        a = 100000
-        b = a * 0.1
-        c = 55
-        d = 500 * c
+        self.title("Investment Property Calculator")
+        self.geometry("800x600")
 
-        # Variables
-        self.date_var = tk.StringVar(value=today)    
-        self.purchase_price_var = tk.DoubleVar(value=a)
-        self.contribution_var = tk.DoubleVar(value=b)
-        self.years_term_var = tk.StringVar(value=7)
-        self.interest_rate_var = tk.DoubleVar(value=3.2)
-        self.insurance_rate_var = tk.DoubleVar(value=0.17)
-        self.sq_meter_var = tk.DoubleVar(value=c)
-        self.price_per_sq_meter_var = tk.StringVar()
-        self.renovation_var = tk.DoubleVar(value=d)
-        self.renovation_price_per_sq_m_var = tk.StringVar()
-        self.interest_rates = {"7": 3.2, "10": 3.4, "15": 3.85, "20": 4.05, "25": 4.2}
-        self.notary_fees_var = tk.StringVar(value=0.08)
+        main_frame = tk.Frame(self)
+        main_frame.place(relx=0.3, rely=0.1, relwidth=0.7, relheight=0.9)
 
-        # State variables for enabling/disabling widgets
+        self.frame = {}
+        for f in (Parameter, Widgets):
+            frame = f(main_frame, self)
+            self.frame[f] = frame
+            frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+
         self.widget_states = {
             "price_entry": tk.BooleanVar(value=True),
             "contribution_entry": tk.BooleanVar(value=True),
@@ -46,125 +37,57 @@ class InvestmentApp:
             "renovation_price_entry": tk.BooleanVar(value=True)
         }
 
-        # Widgets
-        date_label = ttk.Label(root, text="Date d'achat:")
-        date_entry = tkcalendar.Calendar(root, selectmode='day', year=today.year, month=today.month, day=today.day, datevar=self.date_var)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=3)
+
+        date_label = ttk.Label(self, text="Date d'achat:")
+        date_entry = tkcalendar.Calendar(self, selectmode='day', year=today.year, month=today.month, day=today.day, datevar=self.frame[Parameter].date_var)
         date_entry.config(date_pattern='dd/MM/yyyy')
 
-        price_label = ttk.Label(root, text="Prix d'achat (€):")
-        price_entry = ttk.Entry(root, textvariable=self.purchase_price_var, validate="key", validatecommand=(root.register(self.val_calc), "%P"))
-        price_entry.bind("<KeyRelease>", self.calculate_price_per_sq_meter)
+        price_label = ttk.Label(self, text="Prix d'achat (€):")
+        price_entry = ttk.Entry(self, textvariable=self.frame[Parameter].purchase_price_var, validate="key", validatecommand=(self.register(self.frame[Parameter].val_calc), "%P"))
+        price_entry.bind("<KeyRelease>", self.frame[Parameter].calculate_price_per_sq_meter)
 
-        contribution_label = ttk.Label(root, text="Apport (€):")
-        contribution_entry = ttk.Entry(root, textvariable=self.contribution_var, validate="key", validatecommand=(root.register(self.val_calc), "%P"))
+        contribution_label = ttk.Label(self, text="Apport (€):")
+        contribution_entry = ttk.Entry(self, textvariable=self.frame[Parameter].contribution_var, validate="key", validatecommand=(self.register(self.frame[Parameter].val_calc), "%P"))
 
-        years_label = ttk.Label(root, text='Durée du prêt (années):')
-        years_combobox = ttk.Combobox(root, textvariable=self.years_term_var, values=["7", "10", "15", "20", "25"], validate="key", validatecommand=(root.register(self.val_year), "%P"))
-        years_combobox.bind("<<ComboboxSelected>>", self.update_interest_rate)
+        years_label = ttk.Label(self, text='Durée du prêt (années):')
+        years_combobox = ttk.Combobox(self, textvariable=self.frame[Parameter].years_term_var, values=["7", "10", "15", "20", "25"], validate="key", validatecommand=(self.register(self.frame[Parameter].val_year), "%P"))
+        years_combobox.bind("<<ComboboxSelected>>", self.frame[Parameter].update_interest_rate)
 
-        interest_rate_label = ttk.Label(root, text="Taux d'intérêt (%):")
-        interest_rate_entry = ttk.Entry(root, textvariable=self.interest_rate_var, state="readonly")
+        interest_rate_label = ttk.Label(self, text="Taux d'intérêt (%):")
+        interest_rate_entry = ttk.Entry(self, textvariable=self.frame[Parameter].interest_rate_var, state="readonly")
 
-        insurance_rate_label = ttk.Label(root, text="Taux d'assurance (%):")
-        insurance_rate_entry = ttk.Entry(root, textvariable=self.insurance_rate_var, state='readonly')
+        insurance_rate_label = ttk.Label(self, text="Taux d'assurance (%):")
+        insurance_rate_entry = ttk.Entry(self, textvariable=self.frame[Parameter].insurance_rate_var, state='readonly')
 
-        sq_meter_label = ttk.Label(root, text="Nombre de mètre carré (m2):")
-        sq_meter_entry = ttk.Entry(root, textvariable=self.sq_meter_var)
-        sq_meter_entry.bind("<KeyRelease>", self.calculate_price_per_sq_meter)
+        sq_meter_label = ttk.Label(self, text="Nombre de mètre carré (m2):")
+        sq_meter_entry = ttk.Entry(self, textvariable=self.frame[Parameter].sq_meter_var)
+        sq_meter_entry.bind("<KeyRelease>", self.frame[Parameter].calculate_price_per_sq_meter)
 
-        price_per_sq_meter_label = ttk.Label(root, text="Prix au mètre carré (€):")
-        price_per_sq_meter_entry = ttk.Entry(root, textvariable=self.price_per_sq_meter_var, state="readonly")
-        price_per_sq_meter_entry.bind("<KeyRelease>", self.calculate_price_per_sq_meter)
+        price_per_sq_meter_label = ttk.Label(self, text="Prix au mètre carré (€):")
+        price_per_sq_meter_entry = ttk.Entry(self, textvariable=self.frame[Parameter].price_per_sq_meter_var, state="readonly")
+        price_per_sq_meter_entry.bind("<KeyRelease>", self.frame[Parameter].calculate_price_per_sq_meter)
 
-        renovation_label = ttk.Label(root, text="Montant rénovation (€):")
-        renovation_entry = ttk.Entry(root, textvariable=self.renovation_var, validate="key", validatecommand=(root.register(self.val_calc), "%P"))
-        renovation_entry.bind("<KeyRelease>", self.calculate_renovation_per_sq_meter)
+        renovation_label = ttk.Label(self, text="Montant rénovation (€):")
+        renovation_entry = ttk.Entry(self, textvariable=self.frame[Parameter].renovation_var, validate="key", validatecommand=(self.register(self.frame[Parameter].val_calc), "%P"))
+        renovation_entry.bind("<KeyRelease>", self.frame[Parameter].calculate_renovation_per_sq_meter)
 
-        renovation_price_per_sq_m_label = ttk.Label(root, text="Coût au mètre carré (€):")
-        renovation_price_per_sq_m_entry = ttk.Entry(root, textvariable=self.renovation_price_per_sq_m_var, state="readonly")
+        renovation_price_per_sq_m_label = ttk.Label(self, text="Coût au mètre carré (€):")
+        renovation_price_per_sq_m_entry = ttk.Entry(self, textvariable=self.frame[Parameter].renovation_price_per_sq_m_var, state="readonly")
 
-        # Placer les widgets
-        root.columnconfigure(0,weight=1)
-        root.columnconfigure(1,weight=3)
+        # widgets in the grid
 
-        date_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
-        date_entry.grid(row=0, column=1, padx=5, pady=5)
-
-        price_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
-        price_entry.grid(row=1, column=1, padx=5, pady=5)
-        
-        contribution_label.grid(row=1, column=2, padx=5, pady=5, sticky="w")
-        contribution_entry.grid(row=1, column=3, padx=5, pady=5)
-
-        years_label.grid(row=2, column=0, padx=5, pady=5, sticky="w")
-        years_combobox.grid(row=2, column=1)
-
-        interest_rate_label.grid(row=2, column=2, padx=5, pady=5, sticky="w")
-        interest_rate_entry.grid(row=2, column=3, padx=5, pady=5)
-
-        insurance_rate_label.grid(row=3, column=2, padx=5, pady=5, sticky="w")
-        insurance_rate_entry.grid(row=3, column=3, padx=5, pady=5)
-
-        sq_meter_label.grid(row=4, column=0, padx=5, pady=5, sticky="w")
-        sq_meter_entry.grid(row=4, column=1, padx=5, pady=5)
-
-        price_per_sq_meter_label.grid(row=4, column=2, padx=5, pady=5, sticky="w")
-        price_per_sq_meter_entry.grid(row=4, column=3, padx=5, pady=5)
-
-        renovation_label.grid(row=5, column=0, padx=5, pady=5, sticky="w")
-        renovation_entry.grid(row=5, column=1, padx=5, pady=5)
-
-        renovation_price_per_sq_m_label.grid(row=5, column=2, padx=5, pady=5, sticky="w")
-        renovation_price_per_sq_m_entry.grid(row=5, column=3, padx=5, pady=5)
-
-        # Bouton Calcul
-        calculate_button = ttk.Button(root, text="Calculer", command=lambda: self.calculate())
+        calculate_button = ttk.Button(self, text="Calculer", command=lambda: self.frame[Parameter].calculate())
         calculate_button.grid(row=10, column=0, columnspan=2, pady=20)
-        root.bind('<Return>', lambda event: self.calculate())
+        self.bind('<Return>', lambda event: self.frame[Parameter].calculate())
         
-        # Bouton Clear
-        clear_button = ttk.Button(root, text="Effacer", command=self.effacer)
+        clear_button = ttk.Button(self, text="Effacer", command=self.frame[Parameter].effacer)
         clear_button.grid(row=10, column=1, columnspan=2, pady=20)
 
-        # Bouton Cancel
-        cancel_button = ttk.Button(root, text="Fermer", command=self.cancel)
+        cancel_button = ttk.Button(self, text="Fermer", command=self.frame[Parameter].cancel)
         cancel_button.grid(row=10, column=2, columnspan=3, pady=20)
-        root.bind('<Escape>', self.cancel)
-
-    def val_calc(self, new_value):
-        try:
-            ast.parse(new_value, mode='eval')
-            return True
-        except SyntaxError:
-            return False
-
-    def calcul_amount(self, expression):
-        try:
-            result = eval(expression)
-            return result
-        except Exception as e:
-            print(f"Erreur de calcul : {e}")
-            return None
-    
-    def val_year(self, new_value):
-        return new_value == "" or new_value.replace(".","",1).isdigit()
-
-    def update_interest_rate(self, event):
-        selected_year = self.years_term_var.get()
-        interest_rate = self.interest_rates.get(selected_year, 0)
-        self.interest_rate_var.set(interest_rate)
-
-    def effacer(self):
-        self.date_var.set(today)
-        self.purchase_price_var.set(0.0)
-        self.contribution_var.set(0.0)
-        self.years_term_var.set(7)
-        self.interest_rate_var.set(3.2)
-        self.insurance_rate_var.set(0.17)
-        self.sq_meter_var.set(0.0)
-        self.price_per_sq_meter_var.set("")
-        self.renovation_var.set(0.0)
-        self.renovation_price_per_sq_m_var.set("")
+        self.bind('<Escape>', self.frame[Parameter].cancel)
 
     def cancel(self, event=None):
         self.root.destroy()
@@ -284,6 +207,5 @@ class InvestmentApp:
         self.show_results(results)
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = InvestmentApp(root)
-    root.mainloop()
+    app = InvestmentApp()
+    app.mainloop()
