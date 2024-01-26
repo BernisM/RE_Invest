@@ -78,47 +78,19 @@ class InvestmentApp(tk.Tk):
 
         # widgets in the grid
 
-        calculate_button = ttk.Button(self, text="Calculer", command=lambda: self.frame[Parameter].calculate())
+        calculate_button = ttk.Button(self, text="Calculer", command=lambda: self.calculate())
         calculate_button.grid(row=10, column=0, columnspan=2, pady=20)
         self.bind('<Return>', lambda event: self.frame[Parameter].calculate())
         
         clear_button = ttk.Button(self, text="Effacer", command=self.frame[Parameter].effacer)
         clear_button.grid(row=10, column=1, columnspan=2, pady=20)
 
-        cancel_button = ttk.Button(self, text="Fermer", command=self.frame[Parameter].cancel)
+        cancel_button = ttk.Button(self, text="Fermer", command=self.cancel)
         cancel_button.grid(row=10, column=2, columnspan=3, pady=20)
         self.bind('<Escape>', self.frame[Parameter].cancel)
 
     def cancel(self, event=None):
         self.root.destroy()
-
-    def calculate_price_per_sq_meter(self, event=None):
-        try:
-            purchase_price = self.purchase_price_var.get()
-            sq_meter = self.sq_meter_var.get()
-
-            if purchase_price > 0 and sq_meter > 0:
-                price_per_sq_meter = purchase_price / sq_meter
-                self.price_per_sq_meter_var.set(f"{price_per_sq_meter:.2f}")
-            else:
-                self.price_per_sq_meter_var.set("N/A")
-
-        except (ZeroDivisionError, ValueError):
-            self.price_per_sq_meter_var.set("N/A")
-
-    def calculate_renovation_per_sq_meter(self, event=None):
-        try:
-            renovation_price = self.renovation_var.get()
-            sq_meter_1 = self.sq_meter_var.get()
-
-            if renovation_price >= 0 and sq_meter_1 > 0:
-                renovation_per_sq_meter = renovation_price / sq_meter_1
-                self.renovation_price_per_sq_m_var.set(f"{renovation_per_sq_meter:.2f}")
-            else:
-                self.renovation_price_per_sq_m_var.set("N/A")
-
-        except (ZeroDivisionError, ValueError):
-            self.renovation_price_per_sq_m_var.set("N/A")
 
     def show_results(self, results):
         if hasattr(self, 'result_window') and self.result_window.winfo_exists():
@@ -152,8 +124,8 @@ class InvestmentApp(tk.Tk):
             tree.heading(col, text=col)
 
         for years in ["7", "10", "15", "20", "25"]:
-            interest_rate = self.interest_rates[years]
-            insurance_rate = self.insurance_rate_var.get()
+            interest_rate = self.frame[Parameter].interest_rates[years]
+            insurance_rate = self.frame[Parameter].insurance_rate_var.get()
             taeg = interest_rate + insurance_rate
             monthly_int_rate = taeg / 100 / 12
             loan = float(results['total_loan'])
@@ -165,7 +137,7 @@ class InvestmentApp(tk.Tk):
             tree.insert("", "end", values=[years + " ans", f"{interest_rate:.2f}%", f"{taeg:.2f}%", f"{locale.format_string('%.2f', mensualités, grouping=True)}€", f"{locale.format_string('%.2f', crd_cost, grouping=True)}€"])
 
             # Obtenir la durée sélectionner
-            selected_year = self.years_term_var.get() + " ans"
+            selected_year = self.frame[Parameter].years_term_var.get() + " ans"
 
             # Trouver la ligne de l'année sélectionner dans le treeview
             for item in tree.get_children():
@@ -184,16 +156,16 @@ class InvestmentApp(tk.Tk):
 
 
     def calculate(self, event=None):
-        date_value = self.date_var.get()
-        purchase_price = self.purchase_price_var.get()
-        contribution_amount = self.contribution_var.get()
+        date_value = self.frame[Parameter].date_var.get()
+        purchase_price = self.frame[Parameter].purchase_price_var.get()
+        contribution_amount = self.frame[Parameter].contribution_var.get()
         contribution_percentage = (contribution_amount / purchase_price) * 100
-        years = int(self.years_term_var.get())
-        interest_rate = self.interest_rate_var.get()
-        insurance_rate = self.insurance_rate_var.get()
-        sq_meter = self.sq_meter_var.get()
-        renovation_amount = self.renovation_var.get()
-        notary_fees = float(self.notary_fees_var.get())
+        years = int(self.frame[Parameter].years_term_var.get())
+        interest_rate = self.frame[Parameter].interest_rate_var.get()
+        insurance_rate = self.frame[Parameter].insurance_rate_var.get()
+        sq_meter = self.frame[Parameter].sq_meter_var.get()
+        renovation_amount = self.frame[Parameter].renovation_var.get()
+        notary_fees = float(self.frame[Parameter].notary_fees_var.get())
         notary_fees = notary_fees * purchase_price
 
         total_loan = purchase_price + renovation_amount + notary_fees - contribution_amount
