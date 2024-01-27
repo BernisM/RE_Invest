@@ -19,13 +19,29 @@ class InvestmentApp(tk.Tk):
 
         main_frame = tk.Frame(self)
         main_frame.place(relx=0.3, rely=0.1, relwidth=0.7, relheight=0.9)
+        
+        parameters_frame = tk.Frame(main_frame)
+        parameters_frame.place(relx=0.1, rely=0.1, relwidth=0.5, relheight=1)
+        
+        widgets_frame = tk.Frame(main_frame)
+        widgets_frame.place(relx=0.5, rely=0, relwidth=0.5, relheight=1)
 
-        self.frame = {}
+        self.frame = {
+            Parameter: Parameter(parameters_frame, self),
+            Widgets: Widgets(widgets_frame, self)
+        }
+
         for f in (Parameter, Widgets):
             frame = f(main_frame, self)
             self.frame[f] = frame
             frame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
+        """ self.frame = {}
+        for f in (Parameter, Widgets):
+            frame = f(main_frame, self)
+            self.frame[f] = frame
+            frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+ """
         self.widget_states = {
             "price_entry": tk.BooleanVar(value=True),
             "contribution_entry": tk.BooleanVar(value=True),
@@ -87,16 +103,16 @@ class InvestmentApp(tk.Tk):
 
         cancel_button = ttk.Button(self, text="Fermer", command=self.cancel)
         cancel_button.grid(row=10, column=2, columnspan=3, pady=20)
-        self.bind('<Escape>', self.frame[Parameter].cancel)
+        self.bind('<Escape>', self.cancel)
 
     def cancel(self, event=None):
-        self.root.destroy()
+        self.destroy()
 
     def show_results(self, results):
         if hasattr(self, 'result_window') and self.result_window.winfo_exists():
             self.result_window.destroy()
         
-        result_window = tk.Toplevel(self.root)
+        result_window = tk.Toplevel(self)
         result_window.title("Résultats")
         
         # Ajoutez des étiquettes + widgets 
