@@ -53,9 +53,6 @@ class InvestmentApp(tk.Tk):
             "renovation_price_entry": tk.BooleanVar(value=True)
         }
 
-        self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=3)
-
         date_label = ttk.Label(self, text="Date d'achat:")
         date_entry = tkcalendar.Calendar(self, selectmode='day', year=today.year, month=today.month, day=today.day, datevar=self.frame[Parameter].date_var)
         date_entry.config(date_pattern='dd/MM/yyyy')
@@ -92,7 +89,39 @@ class InvestmentApp(tk.Tk):
         renovation_price_per_sq_m_label = ttk.Label(self, text="Coût au mètre carré (€):")
         renovation_price_per_sq_m_entry = ttk.Entry(self, textvariable=self.frame[Parameter].renovation_price_per_sq_m_var, state="readonly")
 
-        # widgets in the grid
+        # Placer les widgets
+        self.columnconfigure(0,weight=1)
+        self.columnconfigure(1,weight=3)
+
+        date_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        date_entry.grid(row=0, column=1, padx=5, pady=5)
+
+        price_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        price_entry.grid(row=1, column=1, padx=5, pady=5)
+        
+        contribution_label.grid(row=1, column=2, padx=5, pady=5, sticky="w")
+        contribution_entry.grid(row=1, column=3, padx=5, pady=5)
+
+        years_label.grid(row=2, column=0, padx=5, pady=5, sticky="w")
+        years_combobox.grid(row=2, column=1)
+
+        interest_rate_label.grid(row=2, column=2, padx=5, pady=5, sticky="w")
+        interest_rate_entry.grid(row=2, column=3, padx=5, pady=5)
+
+        insurance_rate_label.grid(row=3, column=2, padx=5, pady=5, sticky="w")
+        insurance_rate_entry.grid(row=3, column=3, padx=5, pady=5)
+
+        sq_meter_label.grid(row=4, column=0, padx=5, pady=5, sticky="w")
+        sq_meter_entry.grid(row=4, column=1, padx=5, pady=5)
+
+        price_per_sq_meter_label.grid(row=4, column=2, padx=5, pady=5, sticky="w")
+        price_per_sq_meter_entry.grid(row=4, column=3, padx=5, pady=5)
+
+        renovation_label.grid(row=5, column=0, padx=5, pady=5, sticky="w")
+        renovation_entry.grid(row=5, column=1, padx=5, pady=5)
+
+        renovation_price_per_sq_m_label.grid(row=5, column=2, padx=5, pady=5, sticky="w")
+        renovation_price_per_sq_m_entry.grid(row=5, column=3, padx=5, pady=5)
 
         calculate_button = ttk.Button(self, text="Calculer", command=lambda: self.calculate())
         calculate_button.grid(row=10, column=0, columnspan=2, pady=20)
