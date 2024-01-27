@@ -9,16 +9,19 @@ locale.setlocale(locale.LC_ALL, '')
 
 today = datetime.today()
 
-a = 100000
+a = 70000
 b = a * 0.1
 c = 55
 d = 500 * c
+e = 20
 
 class Parameter(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.date_var = tk.StringVar(value=today)
         self.contribution_var = tk.DoubleVar(value=b)
+        self.negociation_var = tk.StringVar(value=e)
+        self.negociation_price_var = tk.StringVar(0)
         self.purchase_price_var = tk.DoubleVar(value=a)
         self.years_term_var = tk.StringVar(value=7)
         self.interest_rate_var = tk.DoubleVar(value=3.2)
@@ -37,6 +40,8 @@ class Parameter(tk.Frame):
         self.date_var.set(today)
         self.purchase_price_var.set(0.0)
         self.contribution_var.set(0.0)
+        self.negociation_var.set(0)
+        self.negociation_price_var.set(0)
         self.years_term_var.set(7)
         self.interest_rate_var.set(3.2)
         self.insurance_rate_var.set(0.17)
@@ -87,6 +92,9 @@ class Parameter(tk.Frame):
 
         except (ZeroDivisionError, ValueError):
             self.renovation_price_per_sq_m_var.set("N/A")
+
+    def val_price(self, event):
+        return self.purchase_price_var.get() * self.negociation_var.get()
 
 class Widgets(tk.Frame):
     def __init__(self, parent, controller):

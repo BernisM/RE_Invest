@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+import sys 
+sys.path.append('C:/Users/massw/Anaconda3/Lib/site-packages')
 import tkcalendar
 from datetime import datetime
 import numpy as np
@@ -15,7 +17,7 @@ class InvestmentApp(tk.Tk):
         tk.Tk.__init__(self)
 
         self.title("Investment Property Calculator")
-        self.geometry("800x600")
+        self.geometry("800x500")
 
         main_frame = tk.Frame(self)
         main_frame.place(relx=0.3, rely=0.1, relwidth=0.7, relheight=0.9)
@@ -45,6 +47,8 @@ class InvestmentApp(tk.Tk):
         self.widget_states = {
             "price_entry": tk.BooleanVar(value=True),
             "contribution_entry": tk.BooleanVar(value=True),
+            "negociation_entry": tk.BooleanVar(value=True),
+            "negociation_price_entry": tk.BooleanVar(value=True),
             "years_combobox": tk.BooleanVar(value=True),
             "interest_rate_entry": tk.BooleanVar(value=True),
             "insurance_rate_entry": tk.BooleanVar(value=True),
@@ -63,6 +67,13 @@ class InvestmentApp(tk.Tk):
 
         contribution_label = ttk.Label(self, text="Apport (€):")
         contribution_entry = ttk.Entry(self, textvariable=self.frame[Parameter].contribution_var, validate="key", validatecommand=(self.register(self.frame[Parameter].val_calc), "%P"))
+        
+        negociation_label = ttk.Label(self, text="Négociation (%):")
+        negociation_entry = ttk.Entry(self, textvariable=self.frame[Parameter].negociation_var, validate="key", validatecommand=(self.register(self.frame[Parameter].val_price), "%P"))
+        
+        negociation_price_label = ttk.Label(self, text="Négociation (%):")
+        negociation_price_entry = ttk.Entry(self, textvariable=self.frame[Parameter].negociation_var, validate="key", validatecommand=(self.register(self.frame[Parameter].val_price), "%P"))
+        negociation_price_entry.bind("<<ComboboxSelected>>", self.frame[Parameter].val_price)
 
         years_label = ttk.Label(self, text='Durée du prêt (années):')
         years_combobox = ttk.Combobox(self, textvariable=self.frame[Parameter].years_term_var, values=["7", "10", "15", "20", "25"], validate="key", validatecommand=(self.register(self.frame[Parameter].val_year), "%P"))
@@ -91,37 +102,44 @@ class InvestmentApp(tk.Tk):
 
         # Placer les widgets
         self.columnconfigure(0,weight=1)
-        self.columnconfigure(1,weight=3)
+        self.columnconfigure(1,weight=1)
+        self.columnconfigure(2,weight=3)
 
         date_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
         date_entry.grid(row=0, column=1, padx=5, pady=5)
 
         price_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
-        price_entry.grid(row=1, column=1, padx=5, pady=5)
+        price_entry.grid(row=1, column=1, padx=5, pady=5, columnspan=1)
         
         contribution_label.grid(row=1, column=2, padx=5, pady=5, sticky="w")
         contribution_entry.grid(row=1, column=3, padx=5, pady=5)
+        
+        negociation_label.grid(row=2, column=0, padx=5, pady=5, sticky="w")
+        negociation_entry.grid(row=2, column=1, padx=5, pady=5)
+        
+        negociation_price_label.grid(row=2, column=2, padx=5, pady=5, sticky="w")
+        negociation_price_entry.grid(row=2, column=3, padx=5, pady=5)
 
-        years_label.grid(row=2, column=0, padx=5, pady=5, sticky="w")
-        years_combobox.grid(row=2, column=1)
+        years_label.grid(row=3, column=0, padx=5, pady=5, sticky="w")
+        years_combobox.grid(row=3, column=1, padx=5, pady=5, columnspan=1)
 
-        interest_rate_label.grid(row=2, column=2, padx=5, pady=5, sticky="w")
-        interest_rate_entry.grid(row=2, column=3, padx=5, pady=5)
+        interest_rate_label.grid(row=3, column=2, padx=5, pady=5, sticky="w")
+        interest_rate_entry.grid(row=3, column=3, padx=5, pady=5)
 
-        insurance_rate_label.grid(row=3, column=2, padx=5, pady=5, sticky="w")
-        insurance_rate_entry.grid(row=3, column=3, padx=5, pady=5)
+        insurance_rate_label.grid(row=4, column=2, padx=5, pady=5, sticky="w")
+        insurance_rate_entry.grid(row=4, column=3, padx=5, pady=5)
 
-        sq_meter_label.grid(row=4, column=0, padx=5, pady=5, sticky="w")
-        sq_meter_entry.grid(row=4, column=1, padx=5, pady=5)
+        sq_meter_label.grid(row=5, column=0, padx=5, pady=5, sticky="w")
+        sq_meter_entry.grid(row=5, column=1, padx=5, pady=5)
 
-        price_per_sq_meter_label.grid(row=4, column=2, padx=5, pady=5, sticky="w")
-        price_per_sq_meter_entry.grid(row=4, column=3, padx=5, pady=5)
+        price_per_sq_meter_label.grid(row=5, column=2, padx=5, pady=5, sticky="w")
+        price_per_sq_meter_entry.grid(row=5, column=3, padx=5, pady=5)
 
-        renovation_label.grid(row=5, column=0, padx=5, pady=5, sticky="w")
-        renovation_entry.grid(row=5, column=1, padx=5, pady=5)
+        renovation_label.grid(row=6, column=0, padx=5, pady=5, sticky="w")
+        renovation_entry.grid(row=6, column=1, padx=5, pady=5)
 
-        renovation_price_per_sq_m_label.grid(row=5, column=2, padx=5, pady=5, sticky="w")
-        renovation_price_per_sq_m_entry.grid(row=5, column=3, padx=5, pady=5)
+        renovation_price_per_sq_m_label.grid(row=6, column=2, padx=5, pady=5, sticky="w")
+        renovation_price_per_sq_m_entry.grid(row=6, column=3, padx=5, pady=5)
 
         calculate_button = ttk.Button(self, text="Calculer", command=lambda: self.calculate())
         calculate_button.grid(row=10, column=0, columnspan=2, pady=20)
@@ -155,7 +173,7 @@ class InvestmentApp(tk.Tk):
 
         # Créer un tableau (Treeview) pour afficher les résultats
         columns = ["Durée annuel", "Taux d'intérêt", "Taux d'intérêt + Assurance", 'Mensualités', 'Coût du Crédit']
-        tree = ttk.Treeview(result_window, columns=columns, show="headings")
+        tree = ttk.Treeview(result_window, columns=columns, show="headings", height=5)
 
         # Définition du style pour surligner la ligne de l'annnée sélectionnée
         tree.tag_configure('selected_row', background='lightblue')
@@ -167,6 +185,10 @@ class InvestmentApp(tk.Tk):
         # Ajouter les colonnes au tableau
         for col in columns:
             tree.heading(col, text=col)
+
+        # Clear existing item in the Treeview
+        for item in tree.get_children():
+            tree.delete(item)
 
         for years in ["7", "10", "15", "20", "25"]:
             interest_rate = self.frame[Parameter].interest_rates[years]
@@ -203,6 +225,7 @@ class InvestmentApp(tk.Tk):
     def calculate(self, event=None):
         date_value = self.frame[Parameter].date_var.get()
         purchase_price = self.frame[Parameter].purchase_price_var.get()
+        last_price = self.frame[Parameter].purchase_price_var.get()
         contribution_amount = self.frame[Parameter].contribution_var.get()
         contribution_percentage = (contribution_amount / purchase_price) * 100
         years = int(self.frame[Parameter].years_term_var.get())
