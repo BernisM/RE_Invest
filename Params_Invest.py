@@ -106,9 +106,9 @@ class Widgets(tk.Frame):
         date_entry = tkcalendar.Calendar(self, selectmode='day', year=today.year, month=today.month, day=today.day, datevar=self.parameter.date_var)
         date_entry.config(date_pattern='dd/MM/yyyy')
 
-        price_label = ttk.Label(self, text="Prix d'achat (€):")
-        price_entry = ttk.Entry(self, textvariable=self.parameter.purchase_price_var, validate="key", validatecommand=(self.parameter.val_calc, "%P"))
-        price_entry.bind("<KeyRelease>", self.parameter.calculate_price_per_sq_meter)
+        self.price_label = ttk.Label(self, text="Prix d'achat (€):")
+        self.price_entry = ttk.Entry(self, textvariable=self.parameter.purchase_price_var, validate="key", validatecommand=(self.parameter.val_calc, "%P"))
+        self.price_entry.bind("<KeyRelease>", self.parameter.calculate_price_per_sq_meter)
 
         contribution_label = ttk.Label(self, text="Apport (€):")
         contribution_entry = ttk.Entry(self, textvariable=self.parameter.contribution_var, validate="key", validatecommand=(self.parameter.val_calc, "%P"))

@@ -61,9 +61,9 @@ class InvestmentApp(tk.Tk):
         date_entry = tkcalendar.Calendar(self, selectmode='day', year=today.year, month=today.month, day=today.day, datevar=self.frame[Parameter].date_var)
         date_entry.config(date_pattern='dd/MM/yyyy')
 
-        price_label = ttk.Label(self, text="Prix d'achat (€):")
+        """ price_label = ttk.Label(self, text="Prix d'achat (€):")
         price_entry = ttk.Entry(self, textvariable=self.frame[Parameter].purchase_price_var, validate="key", validatecommand=(self.register(self.frame[Parameter].val_calc), "%P"))
-        price_entry.bind("<KeyRelease>", self.frame[Parameter].calculate_price_per_sq_meter)
+        price_entry.bind("<KeyRelease>", self.frame[Parameter].calculate_price_per_sq_meter) """
 
         contribution_label = ttk.Label(self, text="Apport (€):")
         contribution_entry = ttk.Entry(self, textvariable=self.frame[Parameter].contribution_var, validate="key", validatecommand=(self.register(self.frame[Parameter].val_calc), "%P"))
@@ -107,9 +107,9 @@ class InvestmentApp(tk.Tk):
 
         date_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
         date_entry.grid(row=0, column=1, padx=5, pady=5)
-
-        price_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
-        price_entry.grid(row=1, column=1, padx=5, pady=5, columnspan=1)
+        
+        Widgets.price_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        Widgets.price_entry.grid(row=1, column=1, padx=5, pady=5, columnspan=1)
         
         contribution_label.grid(row=1, column=2, padx=5, pady=5, sticky="w")
         contribution_entry.grid(row=1, column=3, padx=5, pady=5)
