@@ -18,13 +18,14 @@ e = 20
 class Parameter(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
+
         self.date_var = tk.StringVar(value=today)
         self.contribution_var = tk.DoubleVar(value=int(b))
         self.negociation_var = tk.StringVar(value=e)
         self.negociation_price_var = tk.DoubleVar(0)
         self.purchase_price_var = tk.DoubleVar(value=a)
         self.years_term_var = tk.StringVar(value=7)
-        self.interest_rate_var = tk.DoubleVar(value=3.2)
+        self.interest_rate_var = tk.DoubleVar(value=3.20)
         self.insurance_rate_var = tk.DoubleVar(value=0.17)
         self.sq_meter_var = tk.DoubleVar(value=c)
         self.price_per_sq_meter_var = tk.StringVar()
@@ -33,8 +34,10 @@ class Parameter(tk.Frame):
         self.interest_rates = {"7": 3.20, "10": 3.40, "15": 3.85, "20": 4.05, "25": 4.20}
         self.notary_fees_var = tk.StringVar(value=0.08)
 
-    def calculate_contribution(self):
-        return self.purchase_price_var.get() * 0.1
+    """def calculate_contribution(self):
+        purchase_price = self.purchase_price_var.get()
+        cal_contrib = purchase_price * 0.10
+        self.contribution_var.set(f"{cal_contrib:.2f}".rstrip('0').rstrip('.'))"""
     
     def effacer(self):
         self.date_var.set(today)
@@ -120,6 +123,7 @@ class Widgets(tk.Frame):
 
         self.contribution_label = ttk.Label(self, text="Apport (€):")
         self.contribution_entry = ttk.Entry(self, textvariable=self.parameter.contribution_var, validate="key", validatecommand=(self.parameter.val_calc, "%P"))
+#        self.contribution_entry.bind("<KeyRelease>", self.parameter.calculate_contribution)
 
         self.negociation_label = ttk.Label(self, text="Négociation (%):")
         self.negociation_entry = ttk.Entry(self, textvariable=self.parameter.negociation_var, validate="key", validatecommand=(self.register(self.parameter.val_price), "%P"))

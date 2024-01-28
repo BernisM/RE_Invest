@@ -156,7 +156,7 @@ class InvestmentApp(tk.Tk):
             tree.insert("", "end", values=[years + " ans", f"{interest_rate:.2f}%", f"{taeg:.2f}%", f"{locale.format_string('%.2f', mensualités, grouping=True)}€", f"{locale.format_string('%.2f', crd_cost, grouping=True)}€"])
 
             # Obtenir la durée sélectionner
-            selected_year = self.frame[Parameter].years_term_var.get() + " ans"
+            selected_year = self.frame[Widgets].years_term_var.get() + " ans"
 
             # Trouver la ligne de l'année sélectionner dans le treeview
             for item in tree.get_children():
@@ -176,19 +176,20 @@ class InvestmentApp(tk.Tk):
 
     def calculate(self, event=None):
         date_value = self.frame[Parameter].date_var.get()
-        purchase_price = self.frame[Parameter].purchase_price_var.get()
-        last_price = self.frame[Parameter].purchase_price_var.get()
-        contribution_amount = self.frame[Parameter].contribution_var.get()
+        purchase_price = float(self.frame[Widgets].price_entry.get())
+        negociation_price = float(self.frame[Widgets].negociation_entry.get())
+        last_price = purchase_price - negociation_price
+        contribution_amount = float(self.frame[Widgets].contribution_entry.get())
         contribution_percentage = (contribution_amount / purchase_price) * 100
-        years = int(self.frame[Parameter].years_term_var.get())
-        interest_rate = self.frame[Parameter].interest_rate_var.get()
-        insurance_rate = self.frame[Parameter].insurance_rate_var.get()
-        sq_meter = self.frame[Parameter].sq_meter_var.get()
-        renovation_amount = self.frame[Parameter].renovation_var.get()
+        years = int(self.frame[Widgets].years_combobox.get())
+        interest_rate = float(self.frame[Widgets].interest_rate_entry.get())
+        insurance_rate = float(self.frame[Widgets].insurance_rate_entry.get())
+        sq_meter = float(self.frame[Widgets].sq_meter_entry.get())
+        renovation_amount = float(self.frame[Widgets].renovation_entry.get())
         notary_fees = float(self.frame[Parameter].notary_fees_var.get())
         notary_fees = notary_fees * purchase_price
 
-        total_loan = purchase_price + renovation_amount + notary_fees - contribution_amount
+        total_loan = last_price + renovation_amount + notary_fees - contribution_amount
         
         results = {
             "total_loan": total_loan, "durée" : years,
