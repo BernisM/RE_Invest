@@ -113,19 +113,43 @@ class InvestmentApp(tk.Tk):
         
         result_window = tk.Toplevel(self)
         result_window.title("Résultats")
-        
+
+        # Create a frame to contain the result widgets
+        result_frame = ttk.Frame(result_window)
+        result_frame.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+
         # Ajoutez des étiquettes + widgets 
-        result_total = ttk.Label(result_window, text=f"Total du prêt: {locale.format_string('%.2f',results['total_loan'], grouping=True)}€")
-        result_y = ttk.Label(result_window, text=f"Durée: {results['durée']} ans")
-        result_rate = ttk.Label(result_window, text=f"Taux d'intérêt + Assurance: {results['taux']}%")
-                         
-        result_total.grid(row=0, column=0, padx=3, pady=3, sticky="w",columnspan=2)
-        result_y.grid(row=1, column=0, padx=3, pady=3, sticky="w",columnspan=1)
-        result_rate.grid(row=1, column=1, padx=3, pady=3, sticky="w")
+        result_inital_price = ttk.Label(result_frame, text=f"Prix initial: {locale.format_string('%.2f',results['initial_price'], grouping=True)}€")
+        result_final_price = ttk.Label(result_frame, text=f"Prix négocié: {locale.format_string('%.2f',results['last_price'], grouping=True)}€")
+        result_notary = ttk.Label(result_frame, text=f"Frais de notaire: {locale.format_string('%.2f',results['notary_fees'], grouping=True)}€")
+        result_contribution = ttk.Label(result_frame, text=f"Apport: {locale.format_string('%.2f',results['contribution_amount'], grouping=True)}€")
+        result_renovation = ttk.Label(result_frame, text=f"Travaux: {locale.format_string('%.2f',results['renovation_price'], grouping=True)}€")
+
+        result_total_nego = ttk.Label(result_frame, text=f"Total du prêt: {locale.format_string('%.2f',results['total_loan_nego'], grouping=True)}€", font=('Helvetica', '10', 'bold'))
+        result_y = ttk.Label(result_frame, text=f"Durée: {results['durée']} ans", font=('Helvetica', '10', 'bold'))
+        result_rate = ttk.Label(result_frame, text=f"Taux d'intérêt + Assurance: {results['taux']}%", font=('Helvetica', '10', 'bold'))
+        result_credit_cost = ttk.Label(result_frame, text=f"Coût du crédit: {locale.format_string('%.2f',results['credit_cost'], grouping=True)}€", font=('Helvetica', '10', 'bold'))
+
+        # ---------------------------------- 1ère LIGNE ------------------------------------------#
+        result_inital_price.grid(row=0, column=0, padx=5, pady=5, sticky="w", columnspan=1)
+        result_final_price.grid(row=0, column=2, padx=5, pady=5, sticky="w", columnspan=1)
+        result_notary.grid(row=0, column=4, padx=5, pady=5, sticky="w", columnspan=1)
+        result_contribution.grid(row=0, column=6, padx=5, pady=5, sticky="w", columnspan=1)
+        result_renovation.grid(row=0, column=8, padx=5, pady=5, sticky="w", columnspan=1)
+
+        # ------------------------------- SAUT DE LIGNE ------------------------------------------#
+        result_total_nego.grid(row=1, column=0, padx=5, pady=5, sticky="w",columnspan=1)
+        result_y.grid(row=1, column=2, padx=5, pady=5, sticky="w",columnspan=1)
+        result_rate.grid(row=1, column=4, padx=5, pady=5, sticky="w", columnspan=1)
+        result_credit_cost.grid(row=1, column=6, padx=5, pady=5, sticky="w", columnspan=1)
+
+        # Create another frame for the Treeview
+        tree_frame = ttk.Frame(result_window)
+        tree_frame.grid(row=1, column=0, padx=10, pady=10, sticky="w")
 
         # Créer un tableau (Treeview) pour afficher les résultats
         columns = ["Durée annuel", "Taux d'intérêt", "Taux d'intérêt + Assurance", 'Mensualités', 'Coût du Crédit']
-        tree = ttk.Treeview(result_window, columns=columns, show="headings", height=5)
+        tree = ttk.Treeview(tree_frame, columns=columns, show="headings", height=5)
 
         # Définition du style pour surligner la ligne de l'annnée sélectionnée
         tree.tag_configure('selected_row', background='lightblue')
@@ -142,12 +166,14 @@ class InvestmentApp(tk.Tk):
         for item in tree.get_children():
             tree.delete(item)
 
+        """ self.result_dict = {} """
+
         for years in ["7", "10", "15", "20", "25"]:
             interest_rate = self.frame[Parameter].interest_rates[years]
             insurance_rate = self.frame[Parameter].insurance_rate_var.get()
             taeg = interest_rate + insurance_rate
             monthly_int_rate = taeg / 100 / 12
-            loan = float(results['total_loan'])
+            loan = float(results['total_loan_nego'])
             # Fonction PMT to calculate annual payment with interest
             mensualités = loan * monthly_int_rate / (1 - (1 + monthly_int_rate)**(-int(years) * 12))
             # Coût du crédit
@@ -156,7 +182,14 @@ class InvestmentApp(tk.Tk):
             tree.insert("", "end", values=[years + " ans", f"{interest_rate:.2f}%", f"{taeg:.2f}%", f"{locale.format_string('%.2f', mensualités, grouping=True)}€", f"{locale.format_string('%.2f', crd_cost, grouping=True)}€"])
 
             # Obtenir la durée sélectionner
-            selected_year = self.frame[Widgets].years_term_var.get() + " ans"
+            selected_year = self.frame[Widgets].years_combobox.get() + " ans"
+            """ selected_values = self.result_dict.get(selected_year, {}) """
+
+            """ # Store values in the dictionary
+            self.result_dict[years] = {"interest_rate": interest_rate,
+                                            "taeg": taeg,
+                                            "mensualités": mensualités,
+                                            "crd_cost": crd_cost} """
 
             # Trouver la ligne de l'année sélectionner dans le treeview
             for item in tree.get_children():
@@ -177,10 +210,8 @@ class InvestmentApp(tk.Tk):
     def calculate(self, event=None):
         date_value = self.frame[Parameter].date_var.get()
         purchase_price = float(self.frame[Widgets].price_entry.get())
-        negociation_price = float(self.frame[Widgets].negociation_entry.get())
+        negociation_price = float(self.frame[Widgets].negociation_price_entry.get())
         last_price = purchase_price - negociation_price
-        contribution_amount = float(self.frame[Widgets].contribution_entry.get())
-        contribution_percentage = (contribution_amount / purchase_price) * 100
         years = int(self.frame[Widgets].years_combobox.get())
         interest_rate = float(self.frame[Widgets].interest_rate_entry.get())
         insurance_rate = float(self.frame[Widgets].insurance_rate_entry.get())
@@ -188,12 +219,27 @@ class InvestmentApp(tk.Tk):
         renovation_amount = float(self.frame[Widgets].renovation_entry.get())
         notary_fees = float(self.frame[Parameter].notary_fees_var.get())
         notary_fees = notary_fees * purchase_price
-
-        total_loan = last_price + renovation_amount + notary_fees - contribution_amount
+        renovation_price = float(self.frame[Widgets].renovation_entry.get())
         
+        if float(self.frame[Widgets].contribution_entry.get()) >= last_price * 0.1:
+            contribution_amount = float(self.frame[Widgets].contribution_entry.get())
+        else:
+            contribution_amount = last_price * 0.1
+
+        total_loan_nego = last_price + renovation_amount + notary_fees - contribution_amount
+        taeg = round(interest_rate + insurance_rate,2)
+        monthly_int_rate = taeg / 100 / 12
+        # Fonction PMT to calculate annual payment with interest
+        mensualités = total_loan_nego * monthly_int_rate / (1 - (1 + monthly_int_rate)**(-int(years) * 12))
+        # Coût du crédit
+        crd_cost = round(mensualités * int(years) * 12 - total_loan_nego, 2)
+
         results = {
-            "total_loan": total_loan, "durée" : years,
-            "taux": interest_rate + insurance_rate
+            "notary_fees": notary_fees, "durée" : years,
+            "taux": taeg,
+            "total_loan_nego": total_loan_nego, "initial_price": purchase_price,
+            "contribution_amount": contribution_amount, "last_price": last_price, 
+            "renovation_price": renovation_price, "credit_cost": crd_cost
         }
 
         # Affichez les résultats dans une nouvelle fenêtre

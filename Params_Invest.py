@@ -34,10 +34,21 @@ class Parameter(tk.Frame):
         self.interest_rates = {"7": 3.20, "10": 3.40, "15": 3.85, "20": 4.05, "25": 4.20}
         self.notary_fees_var = tk.StringVar(value=0.08)
 
-    """def calculate_contribution(self):
-        purchase_price = self.purchase_price_var.get()
-        cal_contrib = purchase_price * 0.10
-        self.contribution_var.set(f"{cal_contrib:.2f}".rstrip('0').rstrip('.'))"""
+    def calculate_contribution(self, event):
+        try:
+            purchase_price = self.purchase_price_var.get()
+            cal_contrib = int(purchase_price * 0.10)
+
+            # Récupérez la valeur actuelle de contribution_var
+            current_contrib = float(self.contribution_var.get() or 0)
+
+            # Comparez avec cal_contrib et affectez la plus grande valeur
+            new_contrib = max(cal_contrib, current_contrib)
+
+            # Mettez à jour la variable contribution_var
+            self.contribution_var.set(f"{new_contrib:.2f}".rstrip('0').rstrip('.'))
+        except ValueError:
+            pass
     
     def effacer(self):
         self.date_var.set(today)
@@ -123,7 +134,7 @@ class Widgets(tk.Frame):
 
         self.contribution_label = ttk.Label(self, text="Apport (€):")
         self.contribution_entry = ttk.Entry(self, textvariable=self.parameter.contribution_var, validate="key", validatecommand=(self.parameter.val_calc, "%P"))
-#        self.contribution_entry.bind("<KeyRelease>", self.parameter.calculate_contribution)
+        self.contribution_entry.bind("<FocusOut>", self.parameter.calculate_contribution)
 
         self.negociation_label = ttk.Label(self, text="Négociation (%):")
         self.negociation_entry = ttk.Entry(self, textvariable=self.parameter.negociation_var, validate="key", validatecommand=(self.register(self.parameter.val_price), "%P"))
