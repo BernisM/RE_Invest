@@ -31,26 +31,26 @@ features = list(filter(filter_by_pieces,features))
 
 features = [s.replace('pièces', '').replace(' ', '') for s in features]
 area_values = [s.replace('m²', '').replace(' ', '') for s in area_values]
-price_dates = [s.replace('Vendu en', '') for s in price_dates]
+price_dates = [s.replace('Vendu en', '').replace('Vendue en', '') for s in price_dates]
 price_values = [s.replace('€', '').replace(' ', '') for s in price_values]
 
 sales_dates = []
 month_dict = {'janvier': '01', 'février': '02', 'mars': '03', 'avril': '04', 'mai': '05', 'juin': '06',
-              'juillet': '07', 'août': '08', 'septembre': '09', 'octobre': '10', 'novembre': '11', 'décembre': '12'}
+              'juillet': '07', 'aout': '08', 'septembre': '09', 'octobre': '10', 'novembre': '11', 'décembre': '12'}
 
 room = [1 if i == "Studio" else i for i in features]
-
 
 for s_date in price_dates:
 # Extract month and year from the input string
     month_str, year_str = s_date[:-4], s_date[-4:]
 # Convert the French month to numerical value
-    month_numeric = month_dict.get(month_str.lower(), '01')
+    month_numeric = month_dict[month_str.strip()]
 # Create a datetime object with the extracted values
     date_object = datetime.strptime(month_numeric + year_str, '%m%Y')
 # Format the datetime object as MM/YYYY
     result_date = date_object.strftime('%m/%Y')
     sales_dates.append(result_date)
+
 
 # Vérifier que toutes les listes ont la même longueur
 lengths = [len(addresses), len(room), len(area_values), len(price_dates), len(price_values)]
