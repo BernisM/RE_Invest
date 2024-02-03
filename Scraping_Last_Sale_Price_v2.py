@@ -69,19 +69,23 @@ price_values += [''] * (max_length - len(price_values))
 # Print the lengths after padding
 print("Lengths after padding:", [len(addresses), len(room), len(area_values), len(price_dates), len(price_values)])
 
+# Calulate price per square meter 
+price_m2 = [round(float(price) / float(area),2) for price, area in zip(price_values, area_values)]
+
 # Créer un DataFrame pandas 
 df = pd.DataFrame({ 'Address': addresses, 
                        'Room': room, 
-                       'Area (m²)': area_values, 
+                       'Area (m2)': area_values, 
                        'Sale Date': sales_dates, 
-                       'Price (€)': price_values }) 
+                       'Price (EUR)': price_values,
+                       'Price/m2' : price_m2}) 
 
 """ # Print lines where 'Room' is empty
 empty_room_rows = df[df['Room'] == '']
 print("Lines where 'Room' is empty:")
 print(empty_room_rows) """
 
-""" # Si room est vide mettre la valeur équivlente au nombre de mètre carré
+# Si room est vide mettre la valeur équivlente au nombre de mètre carré
 for index, row in df.iterrows():
     if pd.isna(row['Room']) or row['Room'] == '':
         area_value = float(row['Area (m²)'])
@@ -92,7 +96,6 @@ for index, row in df.iterrows():
         # If a matching row is found, fill the 'Room' value
         if not matching_row.empty:
             df.at[index, 'Room'] = matching_row['Room'].values[0]
- """
 
 # Sauvegarder dans un fichier CSV 
 df.to_csv(save_path, index=False)
