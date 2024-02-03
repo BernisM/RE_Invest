@@ -8,8 +8,8 @@ import numpy as np
 path = 'C:/Users/massw/OneDrive/Bureau/Programmation/RE_Invest/RE_Invest'
 
 # Charger le fichier HTML
-html_path = os.path.join(path,'26_rue_rhin_et_danube.html')
-save_path = os.path.join(path,'26_rue_rhin_et_danube.csv')
+html_path = os.path.join(path,'4_rue_du_vert_buisson.html')
+save_path = os.path.join(path,'4_rue_du_vert_buisson.csv')
 
 # Charger le fichier HTML 
 with open(html_path, 'r', encoding='utf-8') as file: 
@@ -76,12 +76,12 @@ df = pd.DataFrame({ 'Address': addresses,
                        'Sale Date': sales_dates, 
                        'Price (€)': price_values }) 
 
-# Print lines where 'Room' is empty
+""" # Print lines where 'Room' is empty
 empty_room_rows = df[df['Room'] == '']
 print("Lines where 'Room' is empty:")
-print(empty_room_rows)
+print(empty_room_rows) """
 
-# Si room est vide mettre la valeur équivlente au nombre de mètre carré
+""" # Si room est vide mettre la valeur équivlente au nombre de mètre carré
 for index, row in df.iterrows():
     if pd.isna(row['Room']) or row['Room'] == '':
         area_value = float(row['Area (m²)'])
@@ -92,8 +92,7 @@ for index, row in df.iterrows():
         # If a matching row is found, fill the 'Room' value
         if not matching_row.empty:
             df.at[index, 'Room'] = matching_row['Room'].values[0]
-
-print(df.tail(4))
+ """
 
 # Sauvegarder dans un fichier CSV 
 df.to_csv(save_path, index=False)
