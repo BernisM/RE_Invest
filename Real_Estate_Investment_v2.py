@@ -1,12 +1,12 @@
 import tkinter as tk
 from tkinter import ttk
-import sys 
+import sys, locale, csv, os
 sys.path.append('C:/Users/massw/Anaconda3/Lib/site-packages')
 import tkcalendar
 from datetime import datetime
 import numpy as np
-import locale
 from Params_Invest import Parameter, Widgets
+import pandas as pd
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -16,8 +16,11 @@ class InvestmentApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
 
+        self.date_entry = tkcalendar.Calendar(self, selectmode='day')
+        self.date_entry.config(date_pattern='dd/MM/yyyy')
+
         self.title("Investment Property Calculator")
-        self.geometry("800x500")
+        self.geometry("800x510")
 
         main_frame = tk.Frame(self)
         main_frame.place(relx=0.05, rely=0.05, relwidth=0.9, relheight=0.9)
@@ -47,7 +50,8 @@ class InvestmentApp(tk.Tk):
         self.widget_states = {
             "price_entry": tk.BooleanVar(value=True), "contribution_entry": tk.BooleanVar(value=True),
             "negociation_entry": tk.BooleanVar(value=True), "negociation_price_entry": tk.BooleanVar(value=True),
-            "years_combobox": tk.BooleanVar(value=True), "interest_rate_entry": tk.BooleanVar(value=True),
+            "years_combobox": tk.BooleanVar(value=True), "flat_house_combobox": tk.BooleanVar(value=True),
+            "room_combobox": tk.BooleanVar(value=True),"interest_rate_entry": tk.BooleanVar(value=True),
             "insurance_rate_entry": tk.BooleanVar(value=True), "sq_meter_entry": tk.BooleanVar(value=True),
             "renovation_entry": tk.BooleanVar(value=True),"renovation_price_entry": tk.BooleanVar(value=True)
         }
@@ -81,31 +85,57 @@ class InvestmentApp(tk.Tk):
         self.frame[Widgets].insurance_rate_label.grid(row=4, column=2, padx=5, pady=5, sticky="w")
         self.frame[Widgets].insurance_rate_entry.grid(row=4, column=3, padx=5, pady=5)
 
-        self.frame[Widgets].sq_meter_label.grid(row=5, column=0, padx=5, pady=5, sticky="w")
-        self.frame[Widgets].sq_meter_entry.grid(row=5, column=1, padx=5, pady=5)
+        self.frame[Widgets].flat_house_label.grid(row=5, column=0, padx=5, pady=5, sticky="w")
+        self.frame[Widgets].flat_house_combobox.grid(row=5, column=1, padx=5, pady=5, columnspan=1)
+        
+        self.frame[Widgets].room_label.grid(row=5, column=2, padx=5, pady=5, sticky="w")
+        self.frame[Widgets].room_combobox.grid(row=5, column=3, padx=5, pady=5, columnspan=1)
 
-        self.frame[Widgets].price_per_sq_meter_label.grid(row=5, column=2, padx=5, pady=5, sticky="w")
-        self.frame[Widgets].price_per_sq_meter_entry.grid(row=5, column=3, padx=5, pady=5)
+        self.frame[Widgets].sq_meter_label.grid(row=6, column=0, padx=5, pady=5, sticky="w")
+        self.frame[Widgets].sq_meter_entry.grid(row=6, column=1, padx=5, pady=5)
 
-        self.frame[Widgets].renovation_label.grid(row=6, column=0, padx=5, pady=5, sticky="w")
-        self.frame[Widgets].renovation_entry.grid(row=6, column=1, padx=5, pady=5)
+        self.frame[Widgets].price_per_sq_meter_label.grid(row=6, column=2, padx=5, pady=5, sticky="w")
+        self.frame[Widgets].price_per_sq_meter_entry.grid(row=6, column=3, padx=5, pady=5)
 
-        self.frame[Widgets].renovation_price_per_sq_m_label.grid(row=6, column=2, padx=5, pady=5, sticky="w")
-        self.frame[Widgets].renovation_price_per_sq_m_entry.grid(row=6, column=3, padx=5, pady=5)
+        self.frame[Widgets].renovation_label.grid(row=7, column=0, padx=5, pady=5, sticky="w")
+        self.frame[Widgets].renovation_entry.grid(row=7, column=1, padx=5, pady=5)
+
+        self.frame[Widgets].renovation_price_per_sq_m_label.grid(row=7, column=2, padx=5, pady=5, sticky="w")
+        self.frame[Widgets].renovation_price_per_sq_m_entry.grid(row=7, column=3, padx=5, pady=5)
 
         calculate_button = ttk.Button(self.frame[Widgets], text="Calculer", command=lambda: self.calculate())
-        calculate_button.grid(row=7, column=0, columnspan=1, pady=20)
+        calculate_button.grid(row=8, column=0, columnspan=1, pady=20)
         self.bind('<Return>', lambda event: self.calculate())
         
-        clear_button = ttk.Button(self.frame[Widgets], text="Effacer", command=lambda: self.frame[Parameter].effacer())
-        clear_button.grid(row=7, column=1, columnspan=1, pady=20)
+        clear_button = ttk.Button(self.frame[Widgets], text="Effacer", command=lambda: self.effacer())
+        clear_button.grid(row=8, column=1, columnspan=1, pady=20)
 
         cancel_button = ttk.Button(self.frame[Widgets], text="Fermer", command=self.cancel)
-        cancel_button.grid(row=7, column=2, columnspan=1, pady=20)
+        cancel_button.grid(row=8, column=2, columnspan=1, pady=20)
         self.bind('<Escape>', self.cancel)
 
     def cancel(self, event=None):
         self.destroy()
+
+    def effacer(self):
+        a = 70000
+        b = a * 0.1
+        c = 55
+        d = 500 * c
+        e = 20
+        """ self.frame[Widgets].date_entry.tkcalendar.set_date(today.strftime('%d/%m/%Y'))  """#self.frame[Parameter].date_var
+        self.frame[Widgets].price_entry.set(a)
+        self.frame[Widgets].contribution_entry.set(int(a * 0.1))
+        self.frame[Widgets].negociation_entry.set(e)
+        self.frame[Widgets].negociation_price_entry.set(0)
+        self.frame[Widgets].years_combobox.set(value="7")
+        self.frame[Widgets].flat_house_combobox.set(value='Appartement')
+        self.frame[Widgets].interest_rate_entry.set(value=3.20)
+        self.frame[Widgets].insurance_rate_entry.set(value=0.17)
+        self.frame[Widgets].sq_meter_entry.set(c)
+        self.frame[Widgets].price_per_sq_meter_entry.set('')
+        self.frame[Widgets].renovation_entry.set(d)
+        self.frame[Widgets].renovation_price_per_sq_m_entry.set('')
 
     def show_results(self, results):
         if hasattr(self, 'result_window') and self.result_window.winfo_exists():
@@ -220,6 +250,8 @@ class InvestmentApp(tk.Tk):
         notary_fees = float(self.frame[Parameter].notary_fees_var.get())
         notary_fees = notary_fees * purchase_price
         renovation_price = float(self.frame[Widgets].renovation_entry.get())
+        ForH = self.frame[Parameter].flat_house_var.get()
+        room = int(self.frame[Parameter].room_var.get())
         
         if float(self.frame[Widgets].contribution_entry.get()) >= last_price * 0.1:
             contribution_amount = float(self.frame[Widgets].contribution_entry.get())
@@ -242,6 +274,26 @@ class InvestmentApp(tk.Tk):
             "renovation_price": renovation_price, "credit_cost": crd_cost
         }
 
+        # Définir le dictionnaire de mappage Flat_House_Building
+        forh_mapping = {'Appartement': 1, 'Maison': 0, 'Immeuble': 2}
+        ForH_val = forh_mapping.get(ForH, 3) # obtenir la valeur correspondante
+        
+        # obtenir la valeur correspondante chambre
+        bedroom = 1 if room in [1, 2] else room - 1
+
+        path = 'C:/Users/massw/OneDrive/Bureau/Programmation/RE_Invest/RE_Invest/My_notebooks'
+        file = os.path.join(path,'To_Predict.csv')
+
+        Sale_since = 0
+
+        df_prediction = pd.DataFrame({
+            "Flat(1)_House(0)" : ForH_val,
+            "Room" : room, "bedroom" : bedroom,
+            "Area (m2)" : sq_meter, "Sale_Since": Sale_since
+        })
+
+        df_prediction.to_csv(file, index=False)
+        
         # Affichez les résultats dans une nouvelle fenêtre
         self.show_results(results)
 
